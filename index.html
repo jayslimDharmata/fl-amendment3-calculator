@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>FL Amendment 3 Reality App</title>
+  <meta name="description" content="Florida Amendment 3 Property Tax & Civic Impact Mobile Simulator. Calculate net household savings vs. fee clawbacks and societal burdens.">
+
+  <!-- Native Mobile PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FL Tax Reality">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#020617">
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Florida Amendment 3 Fiscal Reality App">
+  <meta property="og:description" content="Evaluate paper tax cuts vs. hidden municipal clawbacks across Florida communities on your phone.">
+  <meta property="og:type" content="website">
+
+  <!-- Inline Web App Manifest Data URI -->
+  <link rel="manifest" href="data:application/manifest+json;utf-8,%7B%22name%22%3A%22FL%20Amendment%203%20Reality%22%2C%22short_name%22%3A%22FL%20Tax%20App%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23020617%22%2C%22theme_color%22%3A%22%23020617%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fplacehold.co%2F192x192%2F020617%2Ff59e0b%3Ftext%3DFL3%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              gold: '#f59e0b',
+              emerald: '#10b981',
+              crimson: '#ef4444',
+              navy: '#020617'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Prevent rubber-banding on iOS while keeping content scrollable */
+    html, body {
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    input, select, textarea {
+      user-select: text;
+    }
+    /* Mobile-optimized touch sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 24px;
+      width: 24px;
+      border-radius: 50%;
+      background: #f59e0b;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      border: 2px solid #ffffff;
+    }
+    /* Hide scrollbar for tabs */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .bg-slate-900, .bg-slate-950, .bg-slate-800 { background: white !important; color: black !important; border: 1px solid #ccc !important; }
+      .text-white, .text-slate-300 { color: black !important; }
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 font-sans flex flex-col antialiased">
+
+  <!-- Mobile Top App Bar (iOS Notch Compatible) -->
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 pt-[env(safe-area-inset-top,0px)] px-4 py-3 shrink-0">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-slate-950 font-black text-sm shadow-md">
+          FL3
+        </div>
+        <div>
+          <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight">Amendment 3 Reality</h1>
+          <p class="text-[10px] text-amber-400 font-semibold tracking-wide uppercase">2026 Fiscal & Civic Simulator</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-1.5 no-print">
+        <button onclick="shareApp()" class="w-9 h-9 rounded-full bg-slate-800 active:bg-slate-700 flex items-center justify-center text-slate-300 text-xs border border-slate-700 transition" title="Share via native sheet">
+          <i class="fa-solid fa-arrow-up-from-bracket"></i>
+        </button>
+        <button onclick="window.print()" class="w-9 h-9 rounded-full bg-slate-800 active:bg-slate-700 flex items-center justify-center text-slate-300 text-xs border border-slate-700 transition" title="Print/Export">
+          <i class="fa-solid fa-print"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Scrollable Workspace -->
+  <div class="flex-grow overflow-y-auto pb-24 px-3 sm:px-4 pt-3 custom-scrollbar">
+    <div class="max-w-md mx-auto space-y-4">
+
+      <!-- Civic Equity Accordion / "The Big Picture" -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+        <div class="flex items-center justify-between cursor-pointer" onclick="toggleCivicSection()">
+          <div class="flex items-center space-x-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-amber-400">The Big Picture: Community Equity</h2>
+          </div>
+          <span id="civicChevron" class="text-slate-400 text-xs transition-transform duration-200"><i class="fa-solid fa-chevron-down"></i></span>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-1.5 leading-tight">
+          How $8.4B in statewide municipal budget cuts redistributes wealth across Florida:
+        </p>
+
+        <!-- Dynamic Expandable Cards -->
+        <div id="civicContent" class="space-y-2.5 mt-3 pt-3 border-t border-slate-800/80">
+          
+          <!-- Renters -->
+          <div class="bg-rose-950/30 border border-rose-900/50 rounded-xl p-3 flex items-start space-x-3">
+            <div class="text-rose-400 text-base mt-0.5"><i class="fa-solid fa-building-user"></i></div>
+            <div class="flex-grow">
+              <div class="flex justify-between items-baseline">
+                <span class="text-xs font-bold text-rose-300">Renters & Working Families</span>
+                <span class="text-[10px] font-mono font-bold text-rose-400">-$800 to -$2k/yr</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-snug mt-0.5">
+                $0 homestead relief. Landlords pass municipal rate hikes onto leases, while regressive sales taxes consume ~80% of wages.
+              </p>
+            </div>
+          </div>
+
+          <!-- Post-2026 Homebuyers -->
+          <div class="bg-amber-950/30 border border-amber-900/50 rounded-xl p-3 flex items-start space-x-3">
+            <div class="text-amber-400 text-base mt-0.5"><i class="fa-solid fa-user-clock"></i></div>
+            <div class="flex-grow">
+              <div class="flex justify-between items-baseline">
+                <span class="text-xs font-bold text-amber-300">Post-2026 Buyers (Lockout)</span>
+                <span class="text-[10px] font-mono font-bold text-amber-400">+$1.8k-$2.4k penalty</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-snug mt-0.5">
+                5-year residency delay caps exemption at $50k. New families pay thousands more than incumbent neighbors in identical homes.
+              </p>
+            </div>
+          </div>
+
+          <!-- Existing Homeowners -->
+          <div class="bg-blue-950/30 border border-blue-900/50 rounded-xl p-3 flex items-start space-x-3">
+            <div class="text-blue-400 text-base mt-0.5"><i class="fa-solid fa-house-chimney"></i></div>
+            <div class="flex-grow">
+              <div class="flex justify-between items-baseline">
+                <span class="text-xs font-bold text-blue-300">Tenured Homeowners</span>
+                <span class="text-[10px] font-mono font-bold text-blue-400">Modest Wash ($0–$50/mo)</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-snug mt-0.5">
+                Headline cut looks big on paper, but untouched school levies (~40% of bill) plus new flat fire-rescue assessments wipe out net savings.
+              </p>
+            </div>
+          </div>
+
+          <!-- Commercial Landlords -->
+          <div class="bg-emerald-950/30 border border-emerald-900/50 rounded-xl p-3 flex items-start space-x-3">
+            <div class="text-emerald-400 text-base mt-0.5"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="flex-grow">
+              <div class="flex justify-between items-baseline">
+                <span class="text-xs font-bold text-emerald-300">Commercial Real Estate</span>
+                <span class="text-[10px] font-mono font-bold text-emerald-400">Massive Winner</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-snug mt-0.5">
+                Non-homestead annual cap slashed from 10% down to 5%, permanently shielding corporate commercial appreciation.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Address Search & Jurisdiction Detection -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+          <span>1. Location & Jurisdiction</span>
+          <span id="lookupStatus" class="text-[10px] text-amber-400 font-normal">Live Florida DB</span>
+        </label>
+
+        <!-- Search Bar with touch action -->
+        <div class="relative flex items-center">
+          <input 
+            type="text" 
+            id="mobileAddressInput"
+            placeholder="Type address or community (e.g. Arden, FL)..."
+            class="w-full bg-slate-950 border border-slate-700 text-slate-100 rounded-xl py-3 pl-10 pr-20 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
+            onkeypress="if(event.key === 'Enter') runAddressSearch()"
+          >
+          <div class="absolute left-3.5 text-slate-500 pointer-events-none text-xs">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+          <button 
+            type="button" 
+            onclick="runAddressSearch()" 
+            class="absolute right-1.5 top-1.5 bottom-1.5 px-3 bg-amber-500 active:bg-amber-600 text-slate-950 font-bold rounded-lg text-xs transition flex items-center"
+          >
+            Locate
+          </button>
+        </div>
+
+        <!-- Quick Neighborhood Pills (Horizontal scrolling for mobile) -->
+        <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1">
+          <button onclick="setJurisdictionPreset('arden')" class="shrink-0 text-[11px] px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 font-semibold active:scale-95 transition">
+            🏡 Arden (Loxahatchee)
+          </button>
+          <button onclick="setJurisdictionPreset('wellington')" class="shrink-0 text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 active:scale-95 transition">
+            🐴 Wellington
+          </button>
+          <button onclick="setJurisdictionPreset('westpalm')" class="shrink-0 text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 active:scale-95 transition">
+            🏙️ West Palm Beach
+          </button>
+          <button onclick="setJurisdictionPreset('boca')" class="shrink-0 text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 active:scale-95 transition">
+            🌴 Boca Raton
+          </button>
+          <button onclick="setJurisdictionPreset('orlando')" class="shrink-0 text-[11px] px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 active:scale-95 transition">
+            🎢 Orlando
+          </button>
+        </div>
+
+        <!-- Detected Jurisdiction Card -->
+        <div id="detectedCard" class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-xs space-y-1">
+          <div class="flex items-center justify-between">
+            <span id="detectedName" class="font-bold text-slate-200">Arden Agrihood (Loxahatchee)</span>
+            <span id="detectedBadge" class="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-amber-500 text-slate-950">Unincorporated</span>
+          </div>
+          <p id="detectedDetails" class="text-[11px] text-slate-400 leading-tight">
+            Palm Beach County MSTU: <strong class="text-slate-200">0 city tax</strong>. Non-school rate: <strong>8.65 mills</strong>. Max gross cut capped at <strong>~$1,730</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- User Profile & Values Control -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-4">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+          2. Tenancy & Property Values
+        </label>
+
+        <!-- Profile Selector (Touch Friendly 44px height) -->
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Your Housing Status</label>
+          <select id="userStatus" onchange="handleStatusChange()" class="w-full h-11 bg-slate-950 border border-slate-700 text-slate-100 rounded-xl px-3 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-amber-500 outline-none">
+            <option value="incumbent_homestead" selected>Primary Homeowner (Pre-2027 Homestead)</option>
+            <option value="post_2026_homebuyer">New Buyer (Post-2026) [5-Yr Lockout]</option>
+            <option value="renter">Tenant / Renter ($0 Homestead)</option>
+            <option value="commercial">Commercial Property Investor (5% Cap)</option>
+          </select>
+        </div>
+
+        <!-- Property Assessed Value Slider -->
+        <div id="propValueContainer">
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-[11px] text-slate-400">Assessed Property Value</label>
+            <span id="propValueLabel" class="text-sm font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">$750,000</span>
+          </div>
+          <input 
+            type="range" 
+            id="propSlider" 
+            min="100000" 
+            max="2000000" 
+            step="10000" 
+            value="750000" 
+            oninput="syncPropValue(this.value)"
+          >
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>$100k</span>
+            <span>$500k</span>
+            <span class="text-amber-400 font-bold">$750k</span>
+            <span>$2M</span>
+          </div>
+        </div>
+
+        <!-- Renter Monthly Rent Slider (Hidden by default) -->
+        <div id="rentContainer" class="hidden">
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-[11px] text-slate-400">Monthly Rent Paid</label>
+            <span id="rentLabel" class="text-sm font-mono font-black text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">$2,400 / mo</span>
+          </div>
+          <input 
+            type="range" 
+            id="rentSlider" 
+            min="800" 
+            max="6000" 
+            step="50" 
+            value="2400" 
+            oninput="syncRentValue(this.value)"
+          >
+          <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+            <span>$800</span>
+            <span>$2,500</span>
+            <span>$6,000</span>
+          </div>
+        </div>
+
+        <!-- Retail Consumption (For Sales Tax Horizon) -->
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-[11px] text-slate-400">Annual Retail Consumption</label>
+            <span id="spendLabel" class="text-xs font-mono font-bold text-slate-300">$60,000 / yr</span>
+          </div>
+          <input 
+            type="range" 
+            id="spendSlider" 
+            min="15000" 
+            max="180000" 
+            step="5000" 
+            value="60000" 
+            oninput="syncSpendValue(this.value)"
+          >
+          <span class="text-[10px] text-slate-500 block mt-1">Used to model sales tax shifts when cities backfill deficit holes.</span>
+        </div>
+
+      </div>
+
+      <!-- Horizon Selector Segmented Tabs (Touch Native 44px) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">
+          3. Analytical Horizon
+        </label>
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+          <button 
+            type="button" 
+            id="tabH1" 
+            onclick="setHorizon('h1')" 
+            class="h-11 rounded-lg text-xs font-bold text-slate-400 transition flex flex-col items-center justify-center leading-tight"
+          >
+            <span>H1</span>
+            <span class="text-[9px] font-normal opacity-80">Paper Cut</span>
+          </button>
+          <button 
+            type="button" 
+            id="tabH2" 
+            onclick="setHorizon('h2')" 
+            class="h-11 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow-sm transition flex flex-col items-center justify-center leading-tight"
+          >
+            <span>H2</span>
+            <span class="text-[9px] font-semibold">Real Offsets</span>
+          </button>
+          <button 
+            type="button" 
+            id="tabH3" 
+            onclick="setHorizon('h3')" 
+            class="h-11 rounded-lg text-xs font-bold text-slate-400 transition flex flex-col items-center justify-center leading-tight"
+          >
+            <span>H3</span>
+            <span class="text-[9px] font-normal opacity-80">+Sales Tax</span>
+          </button>
+        </div>
+        <p id="horizonDescription" class="text-[11px] text-slate-400 leading-tight">
+          <strong>Horizon 2 (Realistic):</strong> Includes Palm Beach County Fire-Rescue flat assessment conversion (~$750) and drainage/utility fees.
+        </p>
+      </div>
+
+      <!-- MAIN RESULTS HERO CARD -->
+      <div id="resultsCard" class="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 border-2 border-emerald-500/80 rounded-2xl p-5 shadow-2xl space-y-4">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">Net Annual Pocket Impact</span>
+            <div class="flex items-baseline space-x-2 mt-0.5">
+              <h3 id="netFigure" class="text-4xl sm:text-5xl font-black font-mono tracking-tight text-emerald-400">+$630</h3>
+              <span id="monthlyFigure" class="text-xs font-bold text-slate-400">(+$52 / mo)</span>
+            </div>
+          </div>
+          <span id="statusTag" class="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+            Modest Wash
+          </span>
+        </div>
+
+        <!-- 3-Pillar Breakdown on Mobile -->
+        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+          <div class="bg-slate-950/60 rounded-xl p-2.5 text-center border border-slate-800">
+            <span class="text-[9px] font-semibold uppercase text-slate-400 block">Gross Cut</span>
+            <span id="grossFigure" class="text-xs sm:text-sm font-black text-emerald-400 font-mono">+$1,730</span>
+          </div>
+          <div class="bg-slate-950/60 rounded-xl p-2.5 text-center border border-slate-800">
+            <span class="text-[9px] font-semibold uppercase text-slate-400 block">Fee Clawback</span>
+            <span id="feeFigure" class="text-xs sm:text-sm font-black text-rose-400 font-mono">-$1,100</span>
+          </div>
+          <div class="bg-slate-950/60 rounded-xl p-2.5 text-center border border-slate-800">
+            <span class="text-[9px] font-semibold uppercase text-slate-400 block">School Tax</span>
+            <span id="schoolFigure" class="text-xs sm:text-sm font-black text-slate-300 font-mono">$4,750</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Narrative Insight -->
+        <div id="narrativeBox" class="bg-slate-950/90 rounded-xl p-3.5 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Chart.js Mobile Waterfall -->
+        <div class="pt-2">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Cash Flow Waterfall ($)</h4>
+            <span class="text-[10px] text-slate-500">Real-time simulation</span>
+          </div>
+          <div class="h-48 w-full">
+            <canvas id="mobileWaterfallChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Neighboring Comparison Cards (Stacked for Mobile) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center justify-between">
+          <span>Arden vs. Neighboring Cities</span>
+          <span class="text-[10px] text-amber-400">H2 Reality</span>
+        </h4>
+        <p class="text-[11px] text-slate-400 leading-tight">
+          Why living in an unincorporated community caps your potential savings compared to high-tax incorporated cities:
+        </p>
+
+        <div class="space-y-2 pt-1">
+          <!-- Card 1: Arden -->
+          <div class="bg-slate-950 p-3 rounded-xl border-l-4 border-amber-500 flex justify-between items-center">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-bold text-slate-200">Arden (Loxahatchee)</span>
+                <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">Uninc.</span>
+              </div>
+              <span class="text-[10px] text-slate-500 block mt-0.5">8.65 non-school mills (Zero city tax)</span>
+            </div>
+            <div class="text-right font-mono">
+              <span class="text-xs font-bold text-emerald-400">+$630 net</span>
+              <span class="text-[10px] text-slate-400 block">(+$1,730 paper)</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Wellington -->
+          <div class="bg-slate-950 p-3 rounded-xl border-l-4 border-slate-700 flex justify-between items-center">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-bold text-slate-200">Wellington (Village)</span>
+                <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">Incorp.</span>
+              </div>
+              <span class="text-[10px] text-slate-500 block mt-0.5">11.12 non-school mills (Village tax)</span>
+            </div>
+            <div class="text-right font-mono">
+              <span class="text-xs font-bold text-emerald-400">+$980 net</span>
+              <span class="text-[10px] text-slate-400 block">(+$2,224 paper)</span>
+            </div>
+          </div>
+
+          <!-- Card 3: West Palm Beach -->
+          <div class="bg-slate-950 p-3 rounded-xl border-l-4 border-slate-700 flex justify-between items-center">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-bold text-slate-200">West Palm Beach</span>
+                <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">City</span>
+              </div>
+              <span class="text-[10px] text-slate-500 block mt-0.5">14.85 non-school mills (High city ad valorem)</span>
+            </div>
+            <div class="text-right font-mono">
+              <span class="text-xs font-bold text-emerald-400">+$1,320 net</span>
+              <span class="text-[10px] text-slate-400 block">(+$2,970 paper)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal & Legislative Citations Footer Note -->
+      <div class="text-[10px] text-slate-500 text-center px-4 leading-relaxed pb-4">
+        Florida Constitution Article VII Section 6 & 9 Amendment Analysis. Projections based on Palm Beach County Property Appraiser (PAPA) 2025/2026 millage rates and Florida Legislative Session ad valorem impact models.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile Sticky Bottom Bar (Thumb-reach action) -->
+  <div class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-4 py-3 fixed bottom-0 left-0 right-0 z-40 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] no-print">
+    <div class="max-w-md mx-auto flex items-center justify-between gap-3">
+      <div>
+        <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">Your Projected Real Net</span>
+        <span id="bottomBarNet" class="text-lg font-black font-mono text-emerald-400">+$630 / yr</span>
+      </div>
+      <button 
+        onclick="shareApp()" 
+        class="h-11 px-5 bg-gradient-to-r from-amber-500 to-amber-600 active:from-amber-600 active:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow-lg flex items-center space-x-2 transition"
+      >
+        <i class="fa-solid fa-share-nodes"></i>
+        <span>Share Results</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 px-4 py-2 rounded-full text-xs font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50">
+    Link copied to clipboard!
+  </div>
+
+  <!-- COMPLETE LOGIC & CALCULATION ENGINE -->
+  <script>
+    const COMMUNITIES = {
+      arden: {
+        name: "Arden (Loxahatchee)",
+        type: "Unincorporated",
+        badge: "Unincorporated Area",
+        badgeColor: "bg-amber-500 text-slate-950",
+        nonSchoolMills: 8.65,
+        schoolMills: 6.33,
+        fireFee: 750,
+        utilityFee: 350,
+        desc: "Status: Unincorporated Palm Beach County. You pay 0 municipal city tax, only County Operating and Fire-Rescue MSTU (~8.65 mills total). Max paper cut is strictly capped at ~$1,730."
+      },
+      wellington: {
+        name: "Village of Wellington",
+        type: "Incorporated",
+        badge: "Incorporated Village",
+        badgeColor: "bg-slate-700 text-slate-200",
+        nonSchoolMills: 11.12,
+        schoolMills: 6.33,
+        fireFee: 650,
+        utilityFee: 300,
+        desc: "Status: Incorporated Village of Wellington. Combines county millage, Fire-Rescue MSTU, and Wellington Village operating millage (11.12 non-school mills)."
+      },
+      westpalm: {
+        name: "City of West Palm Beach",
+        type: "Incorporated",
+        badge: "Incorporated City",
+        badgeColor: "bg-blue-600 text-white",
+        nonSchoolMills: 14.85,
+        schoolMills: 6.33,
+        fireFee: 850,
+        utilityFee: 400,
+        desc: "Status: Incorporated Municipality with full city millage. Headline paper cut is higher, but city faces severe budget deficits requiring clawbacks."
+      },
+      boca: {
+        name: "City of Boca Raton",
+        type: "Incorporated",
+        badge: "Incorporated City",
+        badgeColor: "bg-blue-600 text-white",
+        nonSchoolMills: 12.10,
+        schoolMills: 6.33,
+        fireFee: 600,
+        utilityFee: 320,
+        desc: "Status: Incorporated City of Boca Raton. Operates internal municipal fire department and separate municipal tax roll."
+      },
+      orlando: {
+        name: "City of Orlando (Orange Co.)",
+        type: "Incorporated",
+        badge: "Incorporated Metro",
+        badgeColor: "bg-purple-600 text-white",
+        nonSchoolMills: 15.20,
+        schoolMills: 6.45,
+        fireFee: 800,
+        utilityFee: 420,
+        desc: "Status: Incorporated High-Density Metro. High municipal ad valorem dependence leads to significant municipal fee pressure."
+      }
+    };
+
+    let activeLoc = COMMUNITIES.arden;
+    let activeHorizon = 'h2';
+    let chartInstance = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initChart();
+      recalc();
+    });
+
+    function toggleCivicSection() {
+      const content = document.getElementById('civicContent');
+      const chevron = document.getElementById('civicChevron');
+      if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+      } else {
+        content.classList.add('hidden');
+        chevron.style.transform = 'rotate(-90deg)';
+      }
+    }
+
+    function setJurisdictionPreset(key) {
+      if (COMMUNITIES[key]) {
+        activeLoc = COMMUNITIES[key];
+        document.getElementById('mobileAddressInput').value = activeLoc.name;
+        updateLocationUI();
+        recalc();
+      }
+    }
+
+    function updateLocationUI() {
+      document.getElementById('detectedName').innerText = activeLoc.name;
+      document.getElementById('detectedDetails').innerHTML = activeLoc.desc;
+      const badge = document.getElementById('detectedBadge');
+      badge.innerText = activeLoc.badge;
+      badge.className = `text-[9px] font-black uppercase px-2 py-0.5 rounded ${activeLoc.badgeColor}`;
+    }
+
+    async function runAddressSearch() {
+      const input = document.getElementById('mobileAddressInput').value.trim();
+      if (!input) return;
+      const lower = input.toLowerCase();
+
+      if (lower.includes('arden') || lower.includes('loxahatchee') || lower.includes('the acreage')) {
+        setJurisdictionPreset('arden');
+        return;
+      }
+      if (lower.includes('wellington')) {
+        setJurisdictionPreset('wellington');
+        return;
+      }
+      if (lower.includes('west palm') || lower.includes('wpb')) {
+        setJurisdictionPreset('westpalm');
+        return;
+      }
+      if (lower.includes('boca')) {
+        setJurisdictionPreset('boca');
+        return;
+      }
+      if (lower.includes('orlando')) {
+        setJurisdictionPreset('orlando');
+        return;
+      }
+
+      // Nominatim Geocode Fallback
+      const status = document.getElementById('lookupStatus');
+      status.innerText = "Querying...";
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input + ', Florida')}&addressdetails=1&limit=1`);
+        const results = await res.json();
+        if (results && results.length > 0) {
+          const addr = results[0].address || {};
+          const city = addr.city || addr.town || addr.village;
+          const county = addr.county || 'Florida County';
+
+          if (!city) {
+            activeLoc = {
+              name: `${results[0].display_name.split(',')[0]} (${county})`,
+              type: "Unincorporated",
+              badge: "Unincorporated Area",
+              badgeColor: "bg-amber-500 text-slate-950",
+              nonSchoolMills: 8.75,
+              schoolMills: 6.35,
+              fireFee: 720,
+              utilityFee: 340,
+              desc: `Status: Unincorporated ${county}. Zero municipal city taxes are paid; only County Operating and special service taxing units apply.`
+            };
+          } else {
+            activeLoc = {
+              name: `${city} (${county})`,
+              type: "Incorporated",
+              badge: "Incorporated City",
+              badgeColor: "bg-blue-600 text-white",
+              nonSchoolMills: 13.80,
+              schoolMills: 6.35,
+              fireFee: 800,
+              utilityFee: 380,
+              desc: `Status: Incorporated inside ${city}. Subject to municipal city ad valorem taxes plus county and special district levies.`
+            };
+          }
+          updateLocationUI();
+          recalc();
+          status.innerText = "Found";
+        } else {
+          status.innerText = "Defaulted to Arden";
+          setJurisdictionPreset('arden');
+        }
+      } catch (err) {
+        status.innerText = "Defaulted to Arden";
+        setJurisdictionPreset('arden');
+      }
+    }
+
+    function handleStatusChange() {
+      const val = document.getElementById('userStatus').value;
+      const propCont = document.getElementById('propValueContainer');
+      const rentCont = document.getElementById('rentContainer');
+
+      if (val === 'renter') {
+        propCont.classList.add('hidden');
+        rentCont.classList.remove('hidden');
+      } else {
+        propCont.classList.remove('hidden');
+        rentCont.classList.add('hidden');
+      }
+      recalc();
+    }
+
+    function syncPropValue(val) {
+      document.getElementById('propValueLabel').innerText = `$${parseInt(val).toLocaleString()}`;
+      recalc();
+    }
+
+    function syncRentValue(val) {
+      document.getElementById('rentLabel').innerText = `$${parseInt(val).toLocaleString()} / mo`;
+      recalc();
+    }
+
+    function syncSpendValue(val) {
+      document.getElementById('spendLabel').innerText = `$${parseInt(val).toLocaleString()} / yr`;
+      recalc();
+    }
+
+    function setHorizon(h) {
+      activeHorizon = h;
+      ['h1', 'h2', 'h3'].forEach(k => {
+        const tab = document.getElementById('tab' + k.toUpperCase());
+        if (k === h) {
+          tab.className = "h-11 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow-sm transition flex flex-col items-center justify-center leading-tight";
+        } else {
+          tab.className = "h-11 rounded-lg text-xs font-bold text-slate-400 transition flex flex-col items-center justify-center leading-tight";
+        }
+      });
+
+      const desc = document.getElementById('horizonDescription');
+      if (h === 'h1') {
+        desc.innerHTML = "<strong>Horizon 1 (Paper Headline):</strong> Assumes zero replacement fees and flawless service continuity without sales tax hikes.";
+      } else if (h === 'h2') {
+        desc.innerHTML = `<strong>Horizon 2 (Realistic):</strong> Includes local Fire-Rescue assessment conversion (~$${activeLoc.fireFee}) and utility fee clawbacks.`;
+      } else {
+        desc.innerHTML = "<strong>Horizon 3 (Long-Term Deficit Shift):</strong> Local fee clawbacks plus an estimated +1.0% sales surtax backfill to prevent city bankruptcies.";
+      }
+      recalc();
+    }
+
+    function recalc() {
+      const status = document.getElementById('userStatus').value;
+      const propVal = parseFloat(document.getElementById('propSlider').value) || 0;
+      const rentVal = parseFloat(document.getElementById('rentSlider').value) || 0;
+      const spendVal = parseFloat(document.getElementById('spendSlider').value) || 0;
+
+      const nonSchoolMills = activeLoc.nonSchoolMills;
+      const schoolMills = activeLoc.schoolMills;
+
+      let grossSavings = 0;
+      let schoolTax = 0;
+      let feeClawbacks = 0;
+      let salesTaxOffset = 0;
+      let netImpact = 0;
+      let narrative = "";
+
+      // 1. Calculate Gross Savings
+      if (status === 'incumbent_homestead') {
+        // Net incremental exemption up to $200k
+        const exemptSlice = Math.min(200000, Math.max(0, propVal - 50000));
+        grossSavings = Math.round(exemptSlice * (nonSchoolMills / 1000));
+        schoolTax = Math.round(Math.max(0, propVal - 25000) * (schoolMills / 1000));
+      } else if (status === 'post_2026_homebuyer') {
+        // 5-year lockout penalty: zero extra exemption
+        grossSavings = 0;
+        schoolTax = Math.round(Math.max(0, propVal - 25000) * (schoolMills / 1000));
+      } else if (status === 'renter') {
+        grossSavings = 0;
+        schoolTax = 0;
+      } else if (status === 'commercial') {
+        // Shielded appreciation value from 5% cap
+        grossSavings = Math.round(propVal * 0.05 * (nonSchoolMills / 1000));
+        schoolTax = Math.round(propVal * (schoolMills / 1000));
+      }
+
+      // 2. Apply Horizon Fees & Offsets
+      if (activeHorizon === 'h1') {
+        feeClawbacks = 0;
+        salesTaxOffset = 0;
+      } else if (activeHorizon === 'h2') {
+        if (status === 'renter') {
+          feeClawbacks = Math.round((rentVal * 12) * 0.045); // Landlord pass-through of municipal fees
+        } else if (status === 'commercial') {
+          feeClawbacks = 350;
+        } else {
+          feeClawbacks = activeLoc.fireFee + activeLoc.utilityFee;
+        }
+      } else if (activeHorizon === 'h3') {
+        if (status === 'renter') {
+          feeClawbacks = Math.round((rentVal * 12) * 0.045);
+        } else if (status === 'commercial') {
+          feeClawbacks = 350;
+        } else {
+          feeClawbacks = activeLoc.fireFee + activeLoc.utilityFee;
+        }
+        salesTaxOffset = Math.round(spendVal * 0.01);
+      }
+
+      const totalLosses = feeClawbacks + salesTaxOffset;
+      netImpact = (status === 'renter') ? -totalLosses : (grossSavings - totalLosses);
+      const monthlyNet = Math.round(netImpact / 12);
+
+      // 3. Update Visual Output Elements
+      const netFig = document.getElementById('netFigure');
+      const monthlyFig = document.getElementById('monthlyFigure');
+      const grossFig = document.getElementById('grossFigure');
+      const feeFig = document.getElementById('feeFigure');
+      const schoolFig = document.getElementById('schoolFigure');
+      const statusTag = document.getElementById('statusTag');
+      const bottomBar = document.getElementById('bottomBarNet');
+      const resultsCard = document.getElementById('resultsCard');
+
+      grossFig.innerText = `+$${grossSavings.toLocaleString()}`;
+      feeFig.innerText = totalLosses > 0 ? `-$${totalLosses.toLocaleString()}` : "$0";
+      schoolFig.innerText = (status === 'renter') ? "N/A" : `$${schoolTax.toLocaleString()}`;
+
+      if (netImpact > 0) {
+        netFig.className = "text-4xl sm:text-5xl font-black font-mono tracking-tight text-emerald-400";
+        netFig.innerText = `+$${netImpact.toLocaleString()}`;
+        monthlyFig.innerText = `(+${monthlyNet > 0 ? '$' + monthlyNet : '$0'} / mo)`;
+        bottomBar.className = "text-lg font-black font-mono text-emerald-400";
+        bottomBar.innerText = `+$${netImpact.toLocaleString()} / yr`;
+        statusTag.className = "text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+        statusTag.innerText = netImpact > 900 ? "Net Winner" : "Modest Wash";
+        resultsCard.className = "bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 border-2 border-emerald-500/80 rounded-2xl p-5 shadow-2xl space-y-4";
+      } else if (netImpact < 0) {
+        netFig.className = "text-4xl sm:text-5xl font-black font-mono tracking-tight text-rose-400";
+        netFig.innerText = `-$${Math.abs(netImpact).toLocaleString()}`;
+        monthlyFig.innerText = `(-$${Math.abs(monthlyNet)} / mo)`;
+        bottomBar.className = "text-lg font-black font-mono text-rose-400";
+        bottomBar.innerText = `-$${Math.abs(netImpact).toLocaleString()} / yr`;
+        statusTag.className = "text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40";
+        statusTag.innerText = "Net Loss";
+        resultsCard.className = "bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 border-2 border-rose-500/80 rounded-2xl p-5 shadow-2xl space-y-4";
+      } else {
+        netFig.className = "text-4xl sm:text-5xl font-black font-mono tracking-tight text-slate-300";
+        netFig.innerText = "$0";
+        monthlyFig.innerText = "($0 / mo)";
+        bottomBar.className = "text-lg font-black font-mono text-slate-300";
+        bottomBar.innerText = "$0 / yr";
+        statusTag.className = "text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-slate-700 text-slate-300";
+        statusTag.innerText = "Dead Even";
+        resultsCard.className = "bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 border-2 border-slate-700 rounded-2xl p-5 shadow-2xl space-y-4";
+      }
+
+      // 4. Update Narrative
+      if (status === 'incumbent_homestead') {
+        if (activeLoc.type === 'Unincorporated') {
+          narrative = `Living in <strong>${activeLoc.name}</strong>, you pay zero city ad valorem tax. Your gross cut is capped at <strong>+$${grossSavings.toLocaleString()}</strong>. After Palm Beach County transitions Fire-Rescue into a dedicated <strong>-$${activeLoc.fireFee} assessment</strong> and adds <strong>-$${activeLoc.utilityFee}</strong> in drainage surcharges, your net benefit narrows to roughly <strong>+$${netImpact.toLocaleString()} / year (+$${monthlyNet}/mo)</strong>. Your untouched school tax remains <strong>$${schoolTax.toLocaleString()}</strong>.`;
+        } else {
+          narrative = `In <strong>${activeLoc.name}</strong>, your municipal rate yields an initial gross paper cut of <strong>+$${grossSavings.toLocaleString()}</strong>. However, municipal budget deficits trigger replacement assessments and fee shifts totaling <strong>-$${totalLosses.toLocaleString()}</strong>, leaving a realistic net balance of <strong>+$${netImpact.toLocaleString()} / year</strong>.`;
+        }
+      } else if (status === 'post_2026_homebuyer') {
+        narrative = `Under Amendment 3's <strong>5-year residency lockout</strong>, new arrivals and first-time buyers receive <strong>$0 in expanded tax exemption</strong>. You receive no tax reduction, but you still absorb the <strong>-$${totalLosses.toLocaleString()} in new service fees</strong>—paying thousands more than your incumbent next-door neighbor.`;
+      } else if (status === 'renter') {
+        narrative = `As a tenant, you receive <strong>$0 in tax relief</strong>. Landlords pass commercial property adjustments straight into lease renewals, and local sales surtaxes consume disposable income, costing this household <strong>-$${Math.abs(netImpact).toLocaleString()} / year</strong>.`;
+      } else if (status === 'commercial') {
+        narrative = `The statutory 5% cap on non-homestead assessment increases shields commercial real estate equity from inflationary tax spikes, saving thousands in compound operating capital.`;
+      }
+
+      document.getElementById('narrativeBox').innerHTML = narrative;
+      updateChart(grossSavings, feeClawbacks, salesTaxOffset, netImpact);
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('mobileWaterfallChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Paper Cut', 'Fee Offsets', 'Sales Tax', 'Net Cash'],
+          datasets: [{
+            data: [1730, -1100, 0, 630],
+            backgroundColor: [
+              '#10b981',
+              '#ef4444',
+              '#f59e0b',
+              '#10b981'
+            ],
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const val = ctx.raw;
+                  return (val >= 0 ? '+$' : '-$') + Math.abs(val).toLocaleString();
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              grid: { color: '#1e293b' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                callback: (v) => `$${v}`
+              }
+            },
+            x: {
+              grid: { display: false },
+              ticks: {
+                color: '#cbd5e1',
+                font: { size: 10, weight: 'bold' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateChart(gross, fees, sales, net) {
+      if (!chartInstance) return;
+      chartInstance.data.datasets[0].data = [gross, -fees, -sales, net];
+      chartInstance.data.datasets[0].backgroundColor = [
+        '#10b981',
+        '#ef4444',
+        '#f59e0b',
+        net >= 0 ? '#10b981' : '#ef4444'
+      ];
+      chartInstance.update();
+    }
+
+    function shareApp() {
+      const shareData = {
+        title: 'FL Amendment 3 Reality Calculator',
+        text: `I just calculated my true net impact under Florida Amendment 3. Check what happens to your property tax and community services:`,
+        url: window.location.href
+      };
+
+      if (navigator.share) {
+        navigator.share(shareData).catch(() => {});
+      } else {
+        const dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = window.location.href;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+
+        const toast = document.getElementById('toast');
+        toast.classList.remove('opacity-0');
+        setTimeout(() => toast.classList.add('opacity-0'), 2500);
+      }
+    }
+  </script>
+</body>
+</html>
