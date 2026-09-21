@@ -22,7 +22,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* High-contrast range sliders with prominent touch targets */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -89,7 +88,6 @@
 
         <!-- COLLAPSIBLE CIVIC BRIEFING: "The Big Picture" (Default: Closed) -->
         <section class="bg-white rounded-2xl shadow-md border-2 border-slate-300 overflow-hidden transition-all duration-200">
-            <!-- Accordion Header Button -->
             <button id="bigPictureToggleBtn" onclick="toggleBigPicture()" class="w-full bg-slate-50 hover:bg-slate-100 p-4 sm:p-5 flex items-center justify-between text-left transition border-b border-transparent focus:outline-none">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg border border-blue-200">
@@ -109,13 +107,11 @@
                 </div>
             </button>
 
-            <!-- Collapsible Content (Hidden by Default) -->
             <div id="bigPictureContent" class="hidden p-5 sm:p-6 bg-white border-t-2 border-slate-200 space-y-5">
                 <p class="text-sm text-slate-700 leading-relaxed">
                     A responsible vote evaluates policy not simply by individual pocketbook math, but by the structural consequences on our neighbors, essential public workers, and community fabric. An $8.4 billion annual reduction in municipal ad valorem collections forces a dramatic mechanical wealth redistribution:
                 </p>
 
-                <!-- Grid of 4 Equity Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     
                     <!-- Renters -->
@@ -208,7 +204,7 @@
             <!-- LEFT INPUT COLUMN (5 Cols) -->
             <div class="lg:col-span-5 space-y-6">
 
-                <!-- CARD 1: LOCATION & JURISDICTION (First Card Seen) -->
+                <!-- CARD 1: LOCATION & JURISDICTION -->
                 <div class="bg-white rounded-2xl shadow-md border-2 border-slate-300 overflow-hidden">
                     <div class="h-2 bg-blue-600"></div>
                     <div class="p-5 sm:p-6 space-y-5">
@@ -217,12 +213,12 @@
                                 <span class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">1</span>
                                 <span>Location & Jurisdiction</span>
                             </h3>
-                            <span class="text-xs text-slate-500 font-semibold">Palm Beach County</span>
+                            <span id="headerCountyLabel" class="text-xs text-slate-500 font-semibold">Florida</span>
                         </div>
 
-                        <!-- 3 Streamlined Quick Picks -->
+                        <!-- 3 Quick Picks -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Select Location</label>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Quick Picks</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <button type="button" onclick="applyPreset('wellington')" id="btn_wellington" class="preset-btn py-2.5 px-2 bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 rounded-xl text-xs font-bold text-slate-800 transition text-center">
                                     Wellington
@@ -236,16 +232,17 @@
                             </div>
                         </div>
 
-                        <!-- Address Search Bar -->
+                        <!-- Full Florida Address Search Bar -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Or Enter Florida Address / Neighborhood</label>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Enter Any Florida Address, City, or Town</label>
                             <div class="flex gap-2">
-                                <input type="text" id="addressInput" value="19500 Arden Pkwy, Loxahatchee, FL" placeholder="e.g. 19500 Arden Pkwy, Loxahatchee, FL" 
+                                <input type="text" id="addressInput" value="19500 Arden Pkwy, Loxahatchee, FL" placeholder="e.g. 500 S Australian Ave, West Palm Beach or Naples, FL" 
                                     class="w-full px-3.5 py-2.5 bg-slate-50 border-2 border-slate-300 rounded-xl text-sm text-slate-900 font-medium focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none">
                                 <button id="searchAddressBtn" onclick="handleAddressSearch()" class="px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition flex items-center justify-center shrink-0">
                                     Find
                                 </button>
                             </div>
+                            <span class="text-[11px] text-slate-500 block mt-1">Works for any Florida city, town, community (e.g. Arden, The Acreage), or street address.</span>
                         </div>
 
                         <!-- Jurisdiction Status Badge -->
@@ -283,18 +280,15 @@
                             </select>
                         </div>
 
-                        <!-- County Assessed Value Slider (FIXED SLIDER & ALIGNED SCALE) -->
+                        <!-- Property Value Slider -->
                         <div>
                             <div class="flex justify-between items-center mb-1.5">
                                 <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">County Assessed Property Value</label>
                                 <span id="assessedValueDisplay" class="text-sm font-bold font-mono text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded">$750,000</span>
                             </div>
                             
-                            <!-- Range: 100,000 to 2,000,000 in steps of 25,000 -->
                             <input type="range" id="assessedValueSlider" min="100000" max="2000000" step="25000" value="750000" class="w-full cursor-pointer">
                             
-                            <!-- Mathematically aligned percentage ticks for 100k - 2.0M -->
-                            <!-- (Value - 100k) / 1.9M * 100% -->
                             <div class="relative w-full text-[11px] font-semibold text-slate-500 h-6 mt-1">
                                 <span class="absolute left-0">100k</span>
                                 <span class="absolute -translate-x-1/2" style="left: 21.05%;">$500k</span>
@@ -305,18 +299,15 @@
                             </div>
                         </div>
 
-                        <!-- Estimated Annual Household Income Slider (ADDED SLIDER & NUMBERS) -->
+                        <!-- Income Slider -->
                         <div class="pt-2 border-t border-slate-100">
                             <div class="flex justify-between items-center mb-1.5">
                                 <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Estimated Annual Household Income</label>
                                 <span id="incomeDisplay" class="text-sm font-bold font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">$120,000 / year</span>
                             </div>
                             
-                            <!-- Range: 40,000 to 300,000 in steps of 5,000 -->
                             <input type="range" id="incomeSlider" min="40000" max="300000" step="5000" value="120000" class="w-full cursor-pointer">
                             
-                            <!-- Mathematically aligned percentage ticks for 40k - 300k -->
-                            <!-- (Value - 40k) / 260k * 100% -->
                             <div class="relative w-full text-[11px] font-semibold text-slate-500 h-6 mt-1">
                                 <span class="absolute left-0">$40k</span>
                                 <span class="absolute -translate-x-1/2" style="left: 15.38%;">$80k</span>
@@ -339,7 +330,6 @@
                         </h3>
 
                         <div class="space-y-2.5 pt-1">
-                            <!-- H1 Best Case -->
                             <label class="flex items-start gap-3 p-3 rounded-xl border-2 border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                                 <input type="radio" name="fiscalHorizon" value="h1" class="mt-1 accent-blue-600">
                                 <div>
@@ -348,7 +338,6 @@
                                 </div>
                             </label>
 
-                            <!-- H2 Most Likely (Default) -->
                             <label class="flex items-start gap-3 p-3 rounded-xl border-2 border-blue-600 bg-blue-50/50 cursor-pointer transition">
                                 <input type="radio" name="fiscalHorizon" value="h2" checked class="mt-1 accent-blue-600">
                                 <div>
@@ -356,16 +345,15 @@
                                         <span class="text-xs font-bold text-blue-950">H2: Most Likely (Realistic Municipal Offsets)</span>
                                         <span class="text-[9px] uppercase bg-blue-600 text-white font-bold px-1.5 py-0.2 rounded">Recommended</span>
                                     </div>
-                                    <span class="block text-[11px] text-blue-900 leading-tight mt-0.5">Includes Palm Beach County Fire-Rescue special assessment and drainage/utility fees.</span>
+                                    <span class="block text-[11px] text-blue-900 leading-tight mt-0.5">Includes fire protection special assessments and drainage/utility surcharges.</span>
                                 </div>
                             </label>
 
-                            <!-- H3 Worst Case -->
                             <label class="flex items-start gap-3 p-3 rounded-xl border-2 border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                                 <input type="radio" name="fiscalHorizon" value="h3" class="mt-1 accent-blue-600">
                                 <div>
                                     <span class="block text-xs font-bold text-slate-900">H3: Worst Case (Compounded Fiscal Shock)</span>
-                                    <span class="block text-[11px] text-slate-500 leading-tight">Full fee conversions plus a 1.0% sales surtax to fund county deficits.</span>
+                                    <span class="block text-[11px] text-slate-500 leading-tight">Full fee conversions plus a 1.0% sales surtax to fund county/city deficits.</span>
                                 </div>
                             </label>
                         </div>
@@ -377,7 +365,7 @@
             <!-- RIGHT OUTPUT COLUMN (7 Cols) -->
             <div class="lg:col-span-7 space-y-6">
 
-                <!-- PRIMARY CALCULATION RESULT CARD -->
+                <!-- PRIMARY RESULT CARD -->
                 <div class="bg-white rounded-2xl shadow-xl border-2 border-slate-300 overflow-hidden">
                     <div class="h-2 bg-emerald-600"></div>
                     <div class="p-6 sm:p-8 space-y-6">
@@ -411,7 +399,7 @@
                             <div class="bg-slate-50 rounded-xl p-3.5 border-2 border-slate-200">
                                 <span class="text-[11px] text-slate-500 font-bold block uppercase">Untouched School Tax</span>
                                 <span id="schoolTaxBill" class="text-xl font-bold font-mono text-slate-800">$4,590 / yr</span>
-                                <span class="text-[10px] text-slate-400 block mt-0.5">Full 6.33 mills remain</span>
+                                <span id="schoolRateLabel" class="text-[10px] text-slate-400 block mt-0.5">Full school mills remain</span>
                             </div>
                         </div>
 
@@ -423,66 +411,68 @@
                             </div>
                         </div>
 
-                        <!-- Contextual Explanation Narrative -->
+                        <!-- Dynamic Contextual Narrative -->
                         <div class="p-4 bg-slate-50 rounded-xl border-2 border-slate-200 text-xs text-slate-700 leading-relaxed space-y-1.5">
                             <div class="font-bold text-slate-900 text-sm flex items-center gap-2">
                                 <i class="fa-solid fa-circle-info text-blue-600"></i> Financial Reality Breakdown:
                             </div>
                             <p id="analysisNarrative">
-                                Because you reside in an unincorporated area like <strong>Arden</strong>, you do not pay city taxes. Your non-school levy is strictly ~8.65 mills. Expanding the exemption gives you an initial <strong>+$1,730 / year</strong> gross cut. 
-                                However, when Palm Beach County converts fire rescue to a dedicated <strong>-$750 / year</strong> special assessment and adds <strong>-$350 / year</strong> in drainage/utility surcharges, your net benefit narrows to roughly <strong>+$630 / year</strong>.
+                                Calculating...
                             </p>
                         </div>
 
                     </div>
                 </div>
 
-                <!-- CARD 4: SECONDARY COMMUNITY IMPACTS & LONG-TERM RISKS -->
+                <!-- CARD 4: FULLY DYNAMIC SECONDARY COMMUNITY IMPACTS & RISKS -->
                 <div class="bg-white rounded-2xl shadow-md border-2 border-slate-300 p-6 space-y-4">
-                    <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-3">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base"></i>
-                        <span>Secondary Community Impacts & Long-Term Risks</span>
-                    </h4>
+                    <div class="border-b border-slate-200 pb-3 flex justify-between items-center">
+                        <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base"></i>
+                            <span>Secondary Community Impacts & Risks for <span id="dynamicRiskLocation" class="text-blue-700">Arden</span></span>
+                        </h4>
+                        <span id="dynamicRiskBadge" class="text-[10px] bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded border border-slate-300">Local Breakdown</span>
+                    </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                         
-                        <!-- Risk 1: Resale & Buyer Drag -->
+                        <!-- Dynamic Risk 1: Resale & Buyer Drag -->
                         <div class="p-3.5 bg-slate-50 rounded-xl border-2 border-slate-200 space-y-1">
                             <strong class="text-slate-900 text-xs font-bold block flex items-center gap-1.5">
                                 <i class="fa-solid fa-hand-holding-dollar text-blue-600"></i> Resale Liquidity & Buyer Drag
                             </strong>
-                            <p class="text-slate-600 leading-relaxed">
-                                The <strong>5-year residency lock-out</strong> imposes an extra $1,800 to $2,400 annual carrying cost on out-of-state and new buyers. In master-planned communities like Arden that rely on relocating buyers, this suppresses purchasing power and slows long-term equity growth.
+                            <p id="dynamicRiskResale" class="text-slate-600 leading-relaxed">
+                                Under the 5-year lock-out, new buyers face an extra annual carrying penalty, cooling market demand.
                             </p>
                         </div>
 
-                        <!-- Risk 2: Insurance & Fire Rescue Ratings -->
+                        <!-- Dynamic Risk 2: Insurance & Public Safety -->
                         <div class="p-3.5 bg-slate-50 rounded-xl border-2 border-slate-200 space-y-1">
                             <strong class="text-slate-900 text-xs font-bold block flex items-center gap-1.5">
-                                <i class="fa-solid fa-fire-extinguisher text-rose-600"></i> Insurance Underwriting & Response Times
+                                <i class="fa-solid fa-fire-extinguisher text-rose-600"></i> Fire Rescue & Insurance Underwriting
                             </strong>
-                            <p class="text-slate-600 leading-relaxed">
-                                Squeezing municipal budgets forces freezes on fire engine and ladder truck replacements. If local ISO fire ratings slip, private property insurance premiums can spike by hundreds of dollars, wiping out annual property tax savings.
+                            <p id="dynamicRiskSafety" class="text-slate-600 leading-relaxed">
+                                Fire rescue services face budget compression, risking ISO rating slips and higher home insurance premiums.
                             </p>
                         </div>
 
-                        <!-- Risk 3: External Infrastructure -->
+                        <!-- Dynamic Risk 3: Roads & Infrastructure -->
                         <div class="p-3.5 bg-slate-50 rounded-xl border-2 border-slate-200 space-y-1">
                             <strong class="text-slate-900 text-xs font-bold block flex items-center gap-1.5">
-                                <i class="fa-solid fa-road text-amber-600"></i> Western Corridor Road & Canal Maintenance
+                                <i class="fa-solid fa-road text-amber-600"></i> Infrastructure & Capital Maintenance
                             </strong>
-                            <p class="text-slate-600 leading-relaxed">
-                                While internal Arden amenities are maintained by your HOA, county roads (Southern Blvd, Seminole Pratt Whitney) and regional drainage canals depend on county capital funds. Slashing ad valorem budgets stalls road expansions and canal clearing.
+                            <p id="dynamicRiskInfra" class="text-slate-600 leading-relaxed">
+                                County and municipal capital maintenance budgets contract, delaying paving and drainage dredging.
                             </p>
                         </div>
 
-                        <!-- Risk 4: The School Tax Factor -->
+                        <!-- Dynamic Risk 4: School District Baseline -->
                         <div class="p-3.5 bg-slate-50 rounded-xl border-2 border-slate-200 space-y-1">
                             <strong class="text-slate-900 text-xs font-bold block flex items-center gap-1.5">
                                 <i class="fa-solid fa-graduation-cap text-indigo-600"></i> Untouched School Millage
                             </strong>
-                            <p class="text-slate-600 leading-relaxed">
-                                The amendment provides <strong>$0 in school district relief</strong>. On a $750k home, you will continue to pay thousands annually to the Palm Beach County School Board, preserving essential school operational funding.
+                            <p id="dynamicRiskSchool" class="text-slate-600 leading-relaxed">
+                                School taxes are completely excluded from the expansion, remaining your single largest property tax line item.
                             </p>
                         </div>
 
@@ -508,12 +498,14 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT CALCULATION & INTERACTIVE ENGINE -->
+    <!-- CALCULATION & INTERACTIVE ENGINE -->
     <script>
         // Preset Jurisdictions Database
         const JURISDICTIONS = {
             arden: {
                 name: "Unincorporated Palm Beach County (Arden)",
+                shortName: "Arden (Loxahatchee)",
+                county: "Palm Beach County",
                 type: "Unincorporated",
                 isIncorporated: false,
                 nonSchoolMills: 8.65,
@@ -524,6 +516,8 @@
             },
             wellington: {
                 name: "Village of Wellington",
+                shortName: "Wellington",
+                county: "Palm Beach County",
                 type: "Incorporated Village",
                 isIncorporated: true,
                 nonSchoolMills: 11.12,
@@ -534,16 +528,20 @@
             },
             boca: {
                 name: "City of Boca Raton",
+                shortName: "Boca Raton",
+                county: "Palm Beach County",
                 type: "Incorporated City",
                 isIncorporated: true,
                 nonSchoolMills: 12.10,
                 schoolMills: 6.33,
                 fireAssessment: 600,
                 utilityFee: 320,
-                desc: "Operates internal municipal fire department. Pays City millage + County Operating. Total non-school: <strong>12.10 mills</strong>."
+                desc: "Operates internal municipal fire department. Pays City ad valorem + County Operating. Total non-school: <strong>12.10 mills</strong>."
             },
             wpb: {
                 name: "City of West Palm Beach",
+                shortName: "West Palm Beach",
+                county: "Palm Beach County",
                 type: "Incorporated City",
                 isIncorporated: true,
                 nonSchoolMills: 14.85,
@@ -552,6 +550,21 @@
                 utilityFee: 400,
                 desc: "Pays City of West Palm Beach ad valorem (~8.0 mills) + County Operating. Total non-school: <strong>14.85 mills</strong>."
             }
+        };
+
+        // County Baseline Millage Estimates (Florida Department of Revenue & Appraiser Data)
+        const COUNTY_BASELINES = {
+            "Palm Beach": { countyMills: 4.50, fireMSTU: 3.46, schoolMills: 6.33 },
+            "Broward": { countyMills: 5.45, fireMSTU: 3.10, schoolMills: 6.48 },
+            "Miami-Dade": { countyMills: 4.67, fireMSTU: 2.42, schoolMills: 6.63 },
+            "Orange": { countyMills: 4.43, fireMSTU: 2.24, schoolMills: 6.45 },
+            "Hillsborough": { countyMills: 5.73, fireMSTU: 2.80, schoolMills: 6.34 },
+            "Pinellas": { countyMills: 4.74, fireMSTU: 2.50, schoolMills: 6.29 },
+            "Duval": { countyMills: 11.31, fireMSTU: 0.00, schoolMills: 6.34 }, // Consolidated Jacksonville
+            "Lee": { countyMills: 3.76, fireMSTU: 2.50, schoolMills: 5.32 },
+            "Collier": { countyMills: 3.56, fireMSTU: 1.80, schoolMills: 4.25 },
+            "Sarasota": { countyMills: 3.45, fireMSTU: 2.20, schoolMills: 6.10 },
+            "St. Lucie": { countyMills: 7.20, fireMSTU: 3.00, schoolMills: 6.30 }
         };
 
         let currentJurisdiction = JURISDICTIONS.arden;
@@ -586,6 +599,7 @@
             const incomeDisplay = document.getElementById('incomeDisplay');
             const residencySelect = document.getElementById('residencyStatus');
             const horizonRadios = document.querySelectorAll('input[name="fiscalHorizon"]');
+            const addressInput = document.getElementById('addressInput');
 
             assessedSlider.addEventListener('input', (e) => {
                 assessedDisplay.textContent = `$${parseInt(e.target.value).toLocaleString()}`;
@@ -599,13 +613,16 @@
 
             residencySelect.addEventListener('change', calculateImpact);
             horizonRadios.forEach(r => r.addEventListener('change', calculateImpact));
+
+            addressInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleAddressSearch();
+            });
         }
 
         function applyPreset(key) {
             if (JURISDICTIONS[key]) {
                 currentJurisdiction = JURISDICTIONS[key];
                 
-                // Highlight active button
                 document.querySelectorAll('.preset-btn').forEach(btn => {
                     btn.classList.remove('border-blue-600', 'bg-blue-50', 'text-blue-900');
                     btn.classList.add('border-slate-300', 'bg-slate-100', 'text-slate-800');
@@ -626,59 +643,94 @@
             const query = document.getElementById('addressInput').value.trim();
             if (!query) return;
 
+            // Reset preset buttons highlight
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('border-blue-600', 'bg-blue-50', 'text-blue-900');
+                btn.classList.add('border-slate-300', 'bg-slate-100', 'text-slate-800');
+            });
+
             const btn = document.getElementById('searchAddressBtn');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
             try {
                 const lower = query.toLowerCase();
-                if (lower.includes('arden') || lower.includes('loxahatchee') || lower.includes('the acreage')) {
+                
+                // Specific regional keyword overrides
+                if (lower.includes('arden') || (lower.includes('loxahatchee') && !lower.includes('groves')) || lower.includes('the acreage')) {
                     currentJurisdiction = JURISDICTIONS.arden;
+                    updateJurisdictionUI();
+                    calculateImpact();
+                    return;
                 } else if (lower.includes('wellington')) {
-                    currentJurisdiction = JURISDICTIONS.wellington;
+                    applyPreset('wellington');
+                    return;
                 } else if (lower.includes('boca')) {
-                    currentJurisdiction = JURISDICTIONS.boca;
+                    applyPreset('boca');
+                    return;
                 } else if (lower.includes('west palm') || lower.includes('wpb')) {
-                    currentJurisdiction = JURISDICTIONS.wpb;
-                } else {
-                    // Fallback geocode
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Florida')}&addressdetails=1&limit=1`);
-                    const data = await res.json();
-                    
-                    if (data && data.length > 0) {
-                        const addr = data[0].address;
-                        const city = addr.city || addr.town || addr.village || addr.municipality;
-                        const county = addr.county || 'Palm Beach County';
-
-                        if (!city) {
-                            currentJurisdiction = {
-                                name: `Unincorporated ${county}`,
-                                type: "Unincorporated Area",
-                                isIncorporated: false,
-                                nonSchoolMills: 8.85,
-                                schoolMills: 6.35,
-                                fireAssessment: 700,
-                                utilityFee: 350,
-                                desc: `Located in unincorporated ${county}. No municipal city taxes paid; County Operating and special fire taxing districts apply.`
-                            };
-                        } else {
-                            currentJurisdiction = {
-                                name: `${city} (${county})`,
-                                type: `Incorporated (${city})`,
-                                isIncorporated: true,
-                                nonSchoolMills: 13.50,
-                                schoolMills: 6.35,
-                                fireAssessment: 800,
-                                utilityFee: 380,
-                                desc: `Located inside the municipal boundaries of ${city}. Subject to municipal ad valorem taxes plus county taxes.`
-                            };
-                        }
-                    } else {
-                        currentJurisdiction = JURISDICTIONS.arden;
-                    }
+                    applyPreset('wpb');
+                    return;
                 }
+
+                // General Florida Geocoding Query (Bounded to Florida coordinates)
+                // Florida viewbox: [ -87.6349, 24.5208, -80.0314, 31.0008 ]
+                const encodedQuery = encodeURIComponent(query.includes('Florida') || query.includes('FL') ? query : query + ', Florida');
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedQuery}&addressdetails=1&countrycodes=us&viewbox=-87.63,31.00,-80.03,24.52&bounded=1&limit=1`;
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data && data.length > 0) {
+                    const addr = data[0].address;
+                    const rawCounty = addr.county || 'Palm Beach County';
+                    const countyName = rawCounty.replace(' County', '');
+                    const city = addr.city || addr.town || addr.village || addr.municipality;
+
+                    // Match or fallback county baselines
+                    const baseline = COUNTY_BASELINES[countyName] || { countyMills: 4.80, fireMSTU: 2.50, schoolMills: 6.30 };
+
+                    if (!city) {
+                        // Unincorporated area
+                        const nonSchool = parseFloat((baseline.countyMills + baseline.fireMSTU + 0.69).toFixed(2));
+                        currentJurisdiction = {
+                            name: `Unincorporated ${countyName} County`,
+                            shortName: `Unincorporated ${countyName}`,
+                            county: `${countyName} County`,
+                            type: "Unincorporated Area",
+                            isIncorporated: false,
+                            nonSchoolMills: nonSchool,
+                            schoolMills: baseline.schoolMills,
+                            fireAssessment: 720,
+                            utilityFee: 350,
+                            desc: `Located in unincorporated ${countyName} County. No municipal city ad valorem taxes apply; your non-school levy is strictly County Operating (~${baseline.countyMills} mills) and Fire Rescue MSTU/Districts (~${baseline.fireMSTU} mills). Total non-school: <strong>${nonSchool} mills</strong>.`
+                        };
+                    } else {
+                        // Incorporated City / Village / Town
+                        const cityMillage = 4.25; // Median Florida municipal millage
+                        const nonSchool = parseFloat((baseline.countyMills + baseline.fireMSTU + cityMillage).toFixed(2));
+                        currentJurisdiction = {
+                            name: `${city} (${countyName} County)`,
+                            shortName: city,
+                            county: `${countyName} County`,
+                            type: `Incorporated (${city})`,
+                            isIncorporated: true,
+                            nonSchoolMills: nonSchool,
+                            schoolMills: baseline.schoolMills,
+                            fireAssessment: 780,
+                            utilityFee: 360,
+                            desc: `Located inside the municipal boundaries of ${city}. You pay municipal city taxes (~${cityMillage} mills) layered on top of ${countyName} County Operating. Total non-school: <strong>${nonSchool} mills</strong>.`
+                        };
+                    }
+                } else {
+                    // Fallback to Arden if query fails
+                    alert(`Could not verify exact address in Florida. Defaulting to Arden / Unincorporated Palm Beach County.`);
+                    currentJurisdiction = JURISDICTIONS.arden;
+                }
+                
                 updateJurisdictionUI();
                 calculateImpact();
             } catch (err) {
+                console.error("Geocoding lookup error:", err);
                 currentJurisdiction = JURISDICTIONS.arden;
                 updateJurisdictionUI();
                 calculateImpact();
@@ -690,6 +742,7 @@
         function updateJurisdictionUI() {
             document.getElementById('jurisdictionTitle').textContent = currentJurisdiction.name;
             document.getElementById('jurisdictionDesc').innerHTML = currentJurisdiction.desc;
+            document.getElementById('headerCountyLabel').textContent = currentJurisdiction.county;
             
             const pill = document.getElementById('jurisdictionTypePill');
             pill.textContent = currentJurisdiction.type;
@@ -746,7 +799,6 @@
                 } else {
                     feeClawbacks = currentJurisdiction.fireAssessment + currentJurisdiction.utilityFee;
                 }
-                // Sales tax shift modeled against household income retail proportion
                 const taxableRetailSpend = income * 0.45;
                 salesTaxShift = Math.round(taxableRetailSpend * 0.01);
             }
@@ -758,6 +810,7 @@
             document.getElementById('grossSavings').textContent = `+$${grossCut.toLocaleString()} / yr`;
             document.getElementById('feeClawbacks').textContent = totalClawbacks > 0 ? `-$${totalClawbacks.toLocaleString()} / yr` : "$0 / yr";
             document.getElementById('schoolTaxBill').textContent = `$${schoolTax.toLocaleString()} / yr`;
+            document.getElementById('schoolRateLabel').textContent = `Full ${schoolMillage} mills remain`;
 
             const netDisplay = document.getElementById('netAnnualImpact');
             const stickyNet = document.getElementById('stickyNetImpact');
@@ -789,11 +842,11 @@
             // Dynamic Narrative
             let narrative = "";
             if (residency === "incumbent_homestead") {
-                if (currentJurisdiction.type.includes("Unincorporated")) {
-                    narrative = `Because you reside in an unincorporated area like <strong>Arden</strong>, you do not pay city taxes. Your non-school levy is strictly ~${nonSchoolMillage} mills. Expanding the exemption gives you an initial <strong>+$${grossCut.toLocaleString()} / year</strong> gross cut. 
-                    However, after the county converts fire rescue to a dedicated <strong>-$${currentJurisdiction.fireAssessment} / year</strong> assessment and adds <strong>-$${currentJurisdiction.utilityFee} / year</strong> in drainage/utility surcharges, your net benefit narrows to <strong>${netImpact >= 0 ? '+' : ''}$${netImpact.toLocaleString()} / year</strong>.`;
+                if (!currentJurisdiction.isIncorporated) {
+                    narrative = `Because you reside in an unincorporated area (${currentJurisdiction.name}), you do not pay municipal city taxes. Your non-school levy is strictly ~${nonSchoolMillage} mills. Expanding the exemption gives you a maximum paper cut of <strong>+$${grossCut.toLocaleString()} / year</strong>. 
+                    However, after your county converts fire rescue to a dedicated <strong>-$${currentJurisdiction.fireAssessment} / year</strong> assessment and adds <strong>-$${currentJurisdiction.utilityFee} / year</strong> in drainage/utility surcharges, your net benefit narrows to <strong>${netImpact >= 0 ? '+' : ''}$${netImpact.toLocaleString()} / year</strong>.`;
                 } else {
-                    narrative = `Living in ${currentJurisdiction.name}, your non-school ad valorem rate is higher (~${nonSchoolMillage} mills), producing a gross paper cut of <strong>+$${grossCut.toLocaleString()} / year</strong>. However, fee conversions and surtaxes totaling <strong>-$${totalClawbacks.toLocaleString()} / year</strong> leave you with a real net outcome of <strong>${netImpact >= 0 ? '+' : ''}$${netImpact.toLocaleString()} / year</strong>.`;
+                    narrative = `Living in ${currentJurisdiction.name}, your non-school ad valorem rate is higher (~${nonSchoolMillage} mills) because municipal city taxes are layered on top of county taxes. This produces a gross paper cut of <strong>+$${grossCut.toLocaleString()} / year</strong>. However, local budget shortfalls trigger fee conversions and surtaxes totaling <strong>-$${totalClawbacks.toLocaleString()} / year</strong>, leaving you with a real net outcome of <strong>${netImpact >= 0 ? '+' : ''}$${netImpact.toLocaleString()} / year</strong>.`;
                 }
             } else if (residency === "post_2026_homebuyer") {
                 narrative = `Under Amendment 3's <strong>5-year residency lock-out</strong>, new buyers entering after 2026 receive <strong>$0 in expanded exemption relief</strong>. You receive no property tax cut, but are still assessed the full <strong>-$${totalClawbacks.toLocaleString()} / year</strong> in municipal replacement fees.`;
@@ -804,7 +857,50 @@
             }
 
             document.getElementById('analysisNarrative').innerHTML = narrative;
+            
+            // UPDATE DYNAMIC SECONDARY RISKS SECTION
+            updateDynamicRisks(assessed, grossCut, schoolTax);
+
             updateChart(grossCut, feeClawbacks, salesTaxShift, netImpact);
+        }
+
+        function updateDynamicRisks(assessed, grossCut, schoolTax) {
+            const locName = currentJurisdiction.shortName || currentJurisdiction.name;
+            document.getElementById('dynamicRiskLocation').textContent = locName;
+            document.getElementById('dynamicRiskBadge').textContent = currentJurisdiction.isIncorporated ? "Incorporated Municipality" : "Unincorporated Area";
+
+            // Risk 1: Resale & Buyer Drag
+            const penaltyEstimate = grossCut > 0 ? grossCut : Math.round(200000 * (currentJurisdiction.nonSchoolMills / 1000));
+            document.getElementById('dynamicRiskResale').innerHTML = `
+                In <strong>${locName}</strong>, prospective buyers moving in after Dec 31, 2026, face a 5-year lockout from the $250k tier. That imposes an extra <strong>+$${penaltyEstimate.toLocaleString()} / year carrying cost penalty</strong> on your future buyers compared to you, creating an artificial drag on resale purchasing power and slowing property appreciation.
+            `;
+
+            // Risk 2: Fire Rescue & Public Safety
+            if (!currentJurisdiction.isIncorporated) {
+                document.getElementById('dynamicRiskSafety').innerHTML = `
+                    Because ${locName} is covered by county fire rescue MSTUs, property tax shortfalls directly threaten suburban apparatus procurement. If station response times or ISO fire ratings slip, private property insurance on a $${assessed.toLocaleString()} home can jump by $300 to $700/year, neutralizing paper tax cuts.
+                `;
+            } else {
+                document.getElementById('dynamicRiskSafety').innerHTML = `
+                    ${locName}'s municipal budget faces a direct general fund deficit. Since city police and fire represent 50%+ of municipal operational spending, the city council will be forced to freeze capital equipment replacements or implement standalone fire protection special assessments.
+                `;
+            }
+
+            // Risk 3: Infrastructure
+            if (!currentJurisdiction.isIncorporated) {
+                document.getElementById('dynamicRiskInfra').innerHTML = `
+                    In unincorporated ${currentJurisdiction.county}, you rely entirely on county engineering and water management for external arterial corridors and canal dredging. With county capital funds curtailed, regional road widenings and stormwater dredging face multi-year delays.
+                `;
+            } else {
+                document.getElementById('dynamicRiskInfra').innerHTML = `
+                    In ${locName}, non-mandated community services—such as local streetscaping, municipal park programs, and stormwater maintenance—face immediate defunding or will be shifted into uncapped user fees.
+                `;
+            }
+
+            // Risk 4: School Tax
+            document.getElementById('dynamicRiskSchool').innerHTML = `
+                School district ad valorem taxes are 100% excluded from Amendment 3. On your $${assessed.toLocaleString()} home, you will continue paying approximately <strong>$${schoolTax.toLocaleString()} / year</strong> directly to the ${currentJurisdiction.county} School Board.
+            `;
         }
 
         function initChart() {
