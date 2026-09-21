@@ -213,7 +213,7 @@
                                 <span class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">1</span>
                                 <span>Location & Jurisdiction</span>
                             </h3>
-                            <span id="headerCountyLabel" class="text-xs text-slate-500 font-semibold">Florida</span>
+                            <span id="headerCountyLabel" class="text-xs text-slate-500 font-semibold">Palm Beach County</span>
                         </div>
 
                         <!-- 3 Quick Picks -->
@@ -232,17 +232,17 @@
                             </div>
                         </div>
 
-                        <!-- Full Florida Address Search Bar -->
+                        <!-- Full Florida Address / City / Zip Search Bar (CLEARED & ZIP SUPPORTED) -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Enter Any Florida Address, City, or Town</label>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Enter Florida Address, City, or Zip Code</label>
                             <div class="flex gap-2">
-                                <input type="text" id="addressInput" value="19500 Arden Pkwy, Loxahatchee, FL" placeholder="e.g. 500 S Australian Ave, West Palm Beach or Naples, FL" 
+                                <input type="text" id="addressInput" value="" placeholder="e.g. 33470, Arden Pkwy, or West Palm Beach" 
                                     class="w-full px-3.5 py-2.5 bg-slate-50 border-2 border-slate-300 rounded-xl text-sm text-slate-900 font-medium focus:ring-2 focus:ring-blue-600 focus:border-blue-600 outline-none">
                                 <button id="searchAddressBtn" onclick="handleAddressSearch()" class="px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition flex items-center justify-center shrink-0">
                                     Find
                                 </button>
                             </div>
-                            <span class="text-[11px] text-slate-500 block mt-1">Works for any Florida city, town, community (e.g. Arden, The Acreage), or street address.</span>
+                            <span class="text-[11px] text-slate-500 block mt-1">Search by street address, town, or 5-digit Florida zip code (e.g. 33414, 33470, 33431).</span>
                         </div>
 
                         <!-- Jurisdiction Status Badge -->
@@ -552,7 +552,7 @@
             }
         };
 
-        // County Baseline Millage Estimates (Florida Department of Revenue & Appraiser Data)
+        // County Baseline Millage Estimates
         const COUNTY_BASELINES = {
             "Palm Beach": { countyMills: 4.50, fireMSTU: 3.46, schoolMills: 6.33 },
             "Broward": { countyMills: 5.45, fireMSTU: 3.10, schoolMills: 6.48 },
@@ -560,11 +560,12 @@
             "Orange": { countyMills: 4.43, fireMSTU: 2.24, schoolMills: 6.45 },
             "Hillsborough": { countyMills: 5.73, fireMSTU: 2.80, schoolMills: 6.34 },
             "Pinellas": { countyMills: 4.74, fireMSTU: 2.50, schoolMills: 6.29 },
-            "Duval": { countyMills: 11.31, fireMSTU: 0.00, schoolMills: 6.34 }, // Consolidated Jacksonville
+            "Duval": { countyMills: 11.31, fireMSTU: 0.00, schoolMills: 6.34 },
             "Lee": { countyMills: 3.76, fireMSTU: 2.50, schoolMills: 5.32 },
             "Collier": { countyMills: 3.56, fireMSTU: 1.80, schoolMills: 4.25 },
             "Sarasota": { countyMills: 3.45, fireMSTU: 2.20, schoolMills: 6.10 },
-            "St. Lucie": { countyMills: 7.20, fireMSTU: 3.00, schoolMills: 6.30 }
+            "St. Lucie": { countyMills: 7.20, fireMSTU: 3.00, schoolMills: 6.30 },
+            "Martin": { countyMills: 6.15, fireMSTU: 2.90, schoolMills: 6.15 }
         };
 
         let currentJurisdiction = JURISDICTIONS.arden;
@@ -643,7 +644,6 @@
             const query = document.getElementById('addressInput').value.trim();
             if (!query) return;
 
-            // Reset preset buttons highlight
             document.querySelectorAll('.preset-btn').forEach(btn => {
                 btn.classList.remove('border-blue-600', 'bg-blue-50', 'text-blue-900');
                 btn.classList.add('border-slate-300', 'bg-slate-100', 'text-slate-800');
@@ -655,7 +655,7 @@
             try {
                 const lower = query.toLowerCase();
                 
-                // Specific regional keyword overrides
+                // Specific local keyword overrides
                 if (lower.includes('arden') || (lower.includes('loxahatchee') && !lower.includes('groves')) || lower.includes('the acreage')) {
                     currentJurisdiction = JURISDICTIONS.arden;
                     updateJurisdictionUI();
@@ -672,9 +672,10 @@
                     return;
                 }
 
-                // General Florida Geocoding Query (Bounded to Florida coordinates)
-                // Florida viewbox: [ -87.6349, 24.5208, -80.0314, 31.0008 ]
-                const encodedQuery = encodeURIComponent(query.includes('Florida') || query.includes('FL') ? query : query + ', Florida');
+                // General Florida query (handles 5-digit zip, street addresses, or cities)
+                const isZip = /^\d{5}$/.test(query);
+                const searchQuery = isZip ? `${query}, Florida, USA` : (query.includes('Florida') || query.includes('FL') ? query : `${query}, Florida`);
+                const encodedQuery = encodeURIComponent(searchQuery);
                 const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedQuery}&addressdetails=1&countrycodes=us&viewbox=-87.63,31.00,-80.03,24.52&bounded=1&limit=1`;
                 
                 const res = await fetch(url);
@@ -686,14 +687,13 @@
                     const countyName = rawCounty.replace(' County', '');
                     const city = addr.city || addr.town || addr.village || addr.municipality;
 
-                    // Match or fallback county baselines
                     const baseline = COUNTY_BASELINES[countyName] || { countyMills: 4.80, fireMSTU: 2.50, schoolMills: 6.30 };
 
                     if (!city) {
-                        // Unincorporated area
+                        // Unincorporated county
                         const nonSchool = parseFloat((baseline.countyMills + baseline.fireMSTU + 0.69).toFixed(2));
                         currentJurisdiction = {
-                            name: `Unincorporated ${countyName} County`,
+                            name: `Unincorporated ${countyName} County${isZip ? ' (' + query + ')' : ''}`,
                             shortName: `Unincorporated ${countyName}`,
                             county: `${countyName} County`,
                             type: "Unincorporated Area",
@@ -705,11 +705,11 @@
                             desc: `Located in unincorporated ${countyName} County. No municipal city ad valorem taxes apply; your non-school levy is strictly County Operating (~${baseline.countyMills} mills) and Fire Rescue MSTU/Districts (~${baseline.fireMSTU} mills). Total non-school: <strong>${nonSchool} mills</strong>.`
                         };
                     } else {
-                        // Incorporated City / Village / Town
-                        const cityMillage = 4.25; // Median Florida municipal millage
+                        // Incorporated municipality
+                        const cityMillage = 4.25;
                         const nonSchool = parseFloat((baseline.countyMills + baseline.fireMSTU + cityMillage).toFixed(2));
                         currentJurisdiction = {
-                            name: `${city} (${countyName} County)`,
+                            name: `${city} (${countyName} County)${isZip ? ' - ' + query : ''}`,
                             shortName: city,
                             county: `${countyName} County`,
                             type: `Incorporated (${city})`,
@@ -722,8 +722,7 @@
                         };
                     }
                 } else {
-                    // Fallback to Arden if query fails
-                    alert(`Could not verify exact address in Florida. Defaulting to Arden / Unincorporated Palm Beach County.`);
+                    alert(`Could not verify "${query}" in Florida. Defaulting to Arden / Unincorporated Palm Beach County.`);
                     currentJurisdiction = JURISDICTIONS.arden;
                 }
                 
@@ -766,22 +765,19 @@
             let feeClawbacks = 0;
             let salesTaxShift = 0;
 
-            // 1. Gross Savings based on tenancy
             if (residency === "incumbent_homestead") {
                 const exemptAmount = Math.min(200000, Math.max(0, assessed - 50000));
                 grossCut = Math.round(exemptAmount * (nonSchoolMillage / 1000));
             } else if (residency === "post_2026_homebuyer") {
-                grossCut = 0; // 5-year lock-out
+                grossCut = 0;
             } else if (residency === "renter") {
-                grossCut = 0; // Zero direct homestead relief
+                grossCut = 0;
             } else if (residency === "commercial_investor") {
                 grossCut = Math.round(assessed * 0.05 * (nonSchoolMillage / 1000));
             }
 
-            // 2. School Tax (Unchanged)
             const schoolTax = Math.round(Math.max(0, assessed - 25000) * (schoolMillage / 1000));
 
-            // 3. Horizon Clawbacks
             if (horizon === "h1") {
                 feeClawbacks = 0;
                 salesTaxShift = 0;
@@ -806,7 +802,6 @@
             const totalClawbacks = feeClawbacks + salesTaxShift;
             const netImpact = grossCut - totalClawbacks;
 
-            // Update UI elements
             document.getElementById('grossSavings').textContent = `+$${grossCut.toLocaleString()} / yr`;
             document.getElementById('feeClawbacks').textContent = totalClawbacks > 0 ? `-$${totalClawbacks.toLocaleString()} / yr` : "$0 / yr";
             document.getElementById('schoolTaxBill').textContent = `$${schoolTax.toLocaleString()} / yr`;
@@ -839,7 +834,6 @@
                 verdictPill.textContent = "Break-Even Wash";
             }
 
-            // Dynamic Narrative
             let narrative = "";
             if (residency === "incumbent_homestead") {
                 if (!currentJurisdiction.isIncorporated) {
@@ -858,9 +852,7 @@
 
             document.getElementById('analysisNarrative').innerHTML = narrative;
             
-            // UPDATE DYNAMIC SECONDARY RISKS SECTION
             updateDynamicRisks(assessed, grossCut, schoolTax);
-
             updateChart(grossCut, feeClawbacks, salesTaxShift, netImpact);
         }
 
@@ -869,13 +861,11 @@
             document.getElementById('dynamicRiskLocation').textContent = locName;
             document.getElementById('dynamicRiskBadge').textContent = currentJurisdiction.isIncorporated ? "Incorporated Municipality" : "Unincorporated Area";
 
-            // Risk 1: Resale & Buyer Drag
             const penaltyEstimate = grossCut > 0 ? grossCut : Math.round(200000 * (currentJurisdiction.nonSchoolMills / 1000));
             document.getElementById('dynamicRiskResale').innerHTML = `
                 In <strong>${locName}</strong>, prospective buyers moving in after Dec 31, 2026, face a 5-year lockout from the $250k tier. That imposes an extra <strong>+$${penaltyEstimate.toLocaleString()} / year carrying cost penalty</strong> on your future buyers compared to you, creating an artificial drag on resale purchasing power and slowing property appreciation.
             `;
 
-            // Risk 2: Fire Rescue & Public Safety
             if (!currentJurisdiction.isIncorporated) {
                 document.getElementById('dynamicRiskSafety').innerHTML = `
                     Because ${locName} is covered by county fire rescue MSTUs, property tax shortfalls directly threaten suburban apparatus procurement. If station response times or ISO fire ratings slip, private property insurance on a $${assessed.toLocaleString()} home can jump by $300 to $700/year, neutralizing paper tax cuts.
@@ -886,7 +876,6 @@
                 `;
             }
 
-            // Risk 3: Infrastructure
             if (!currentJurisdiction.isIncorporated) {
                 document.getElementById('dynamicRiskInfra').innerHTML = `
                     In unincorporated ${currentJurisdiction.county}, you rely entirely on county engineering and water management for external arterial corridors and canal dredging. With county capital funds curtailed, regional road widenings and stormwater dredging face multi-year delays.
@@ -897,7 +886,6 @@
                 `;
             }
 
-            // Risk 4: School Tax
             document.getElementById('dynamicRiskSchool').innerHTML = `
                 School district ad valorem taxes are 100% excluded from Amendment 3. On your $${assessed.toLocaleString()} home, you will continue paying approximately <strong>$${schoolTax.toLocaleString()} / year</strong> directly to the ${currentJurisdiction.county} School Board.
             `;
